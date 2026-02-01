@@ -597,48 +597,6 @@ CHUNKING__CHUNK_SIZE=600
 
 ---
 
-## 🚀 Development
-
-### Prerequisites
-- Docker & Docker Compose
-- Python 3.12+ (for local dev)
-- 8GB+ RAM (for Ollama)
-- Jina AI API key (free tier available)
-
-### Quick Start
-
-```bash
-# 1. Clone and enter directory
-cd Arxuv-Agentic_RAG
-
-# 2. Configure environment
-cp .env.example .env
-# Edit .env with your API keys
-
-# 3. Start all services
-docker-compose up -d
-
-# 4. Check health
-curl http://localhost:8000/api/v1/health
-
-# 5. Test query
-curl -X POST http://localhost:8000/api/v1/agentic-ask \
-  -H "Content-Type: application/json" \
-  -d '{"query": "What is attention mechanism?"}'
-```
-
-### Access Points
-
-| Service | URL | Description |
-|---------|-----|-------------|
-| API | http://localhost:8000 | FastAPI backend |
-| Airflow | http://localhost:8080 | Pipeline management |
-| OpenSearch | http://localhost:9200 | Search engine |
-| Dashboards | http://localhost:5601 | Search analytics |
-| Langfuse | http://localhost:3001 | LLM observability |
-| MinIO | http://localhost:9091 | Object storage console |
-
----
 
 ## 📊 Monitoring & Observability
 
@@ -673,22 +631,12 @@ curl http://localhost:8080/health
 
 ---
 
-## 🔮 Future Roadmap
-
-- [ ] **Web UI**: Gradio/React frontend
-- [ ] **Multi-category Support**: Beyond cs.AI
-- [ ] **Citation Network**: Paper relationship graphs
-- [ ] **Alert System**: Notify on relevant new papers
-- [ ] **Collaborative Features**: Share paper collections
-- [ ] **Advanced Analytics**: Research trend analysis
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License.
 
 ---
+
 
 <p align="center">
   <strong>Built with ❤️ for the AI/ML community</strong>
