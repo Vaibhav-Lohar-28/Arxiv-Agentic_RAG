@@ -12,13 +12,13 @@
   <a href="#features">Features</a> •
   <a href="#architecture">Architecture</a> •
   <a href="#tech-stack">Tech Stack</a> •
-  <a href="#api-documentation">API</a> •
+  <a href="#api-documentation">API</a> •     
   <a href="#project-structure">Structure</a>
 </p>
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [What is This?](#-what-is-this)
 - [Key Features](#-key-features)
