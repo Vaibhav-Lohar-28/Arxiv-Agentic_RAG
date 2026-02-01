@@ -643,6 +643,10 @@ This project is licensed under the MIT License.
 </p>
 
 <p align="center">
+  <strong>Author: Vaibhav Lohar</strong>
+</p>
+
+<p align="center">
   <a href="https://linkedin.com/in/vaibhav-lohar-38b78a28b">LinkedIn</a> •
   <a href="mailto:your-email@example.com">Email</a>
 </p>
