@@ -1,39 +1,25 @@
-# Use Astral UV base image with Python 3.12 and Debian Bookworm
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS base
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy configuration files
-COPY pyproject.toml uv.lock ./
+# Install PostgreSQL client library (libpq5) - CRITICAL for psycopg2
+RUN apt-get update && apt-get install -y --no-install-recommends libpq5 && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables for UV
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+# Set library path
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
-# Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=/app/uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=/app/pyproject.toml \
-    uv sync --frozen --no-dev
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src /app/src
 
-FROM python:3.12.8-slim AS final
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV APP_VERSION=0.1.0
 
 EXPOSE 8000
 
-# PYTHONUNBUFFERED=1 to disable output buffering
-ENV PYTHONUNBUFFERED=1
-ARG VERSION=0.1.0
-ENV APP_VERSION=$VERSION
-
-WORKDIR /app
-
-# Copy the virtual environment from the base stage
-COPY --from=base /app /app
-
-# Add virtual environment to PATH
-ENV PATH="/app/.venv/bin:$PATH"
-
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"] 
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

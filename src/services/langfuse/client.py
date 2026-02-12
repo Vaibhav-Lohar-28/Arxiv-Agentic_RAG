@@ -257,3 +257,50 @@ class LangfuseTracer:
             span.end()
         except Exception as e:
             logger.error(f"Error updating span: {e}")
+
+    # Methods required by RAGTracer
+    @contextmanager
+    def trace_rag_request(
+        self,
+        query: str,
+        user_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Create a trace for a RAG request."""
+        if not self.client:
+            yield None
+            return
+
+        try:
+            trace = self.client.trace(
+                name="rag_request",
+                input=query,
+                user_id=user_id,
+                session_id=session_id,
+                metadata=metadata or {},
+            )
+            yield trace
+        except Exception as e:
+            logger.error(f"Error creating RAG trace: {e}")
+            yield None
+
+    def create_span(
+        self,
+        trace,
+        name: str,
+        input_data: Optional[Any] = None,
+    ):
+        """Create a span within a trace."""
+        if not self.client or not trace:
+            return None
+
+        try:
+            span = trace.span(
+                name=name,
+                input=input_data,
+            )
+            return span
+        except Exception as e:
+            logger.error(f"Error creating span: {e}")
+            return None

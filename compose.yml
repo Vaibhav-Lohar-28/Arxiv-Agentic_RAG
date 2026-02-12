@@ -16,15 +16,15 @@ services:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\" || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 10
+      start_period: 120s
     env_file:
       - .env
     environment:
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH__HOST=http://opensearch:9200
-      - OLLAMA_HOST=http://ollama:11434
-      - POSTGRES_DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-vaibhav}:${POSTGRES_PASSWORD:-Password123}@postgres:5432/rag_project_db
+      - OLLAMA_HOST=http://rag-ollama:11434
+      - POSTGRES_DATABASE_URL=postgresql+psycopg2://${DB_USER:-vaibhav}:${DB_PASSWORD:-Password123}@postgres:5432/rag_project_db
       - LANGFUSE_HOST=http://langfuse-web:3000
       - LANGFUSE_DEBUG=true
       - REDIS__HOST=redis
@@ -110,9 +110,10 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - PYTHONPATH=/opt/airflow/src
       - POSTGRES_DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-vaibhav}:${POSTGRES_PASSWORD:-Password123}@postgres:5432/rag_project_db
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-vaibhav}:${POSTGRES_PASSWORD:-Password123}@postgres:5432/rag_project_db
       - OPENSEARCH_HOST=http://opensearch:9200
       - OPENSEARCH__HOST=http://opensearch:9200
-      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_HOST=http://rag-ollama:11434
       - REDIS__HOST=redis
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -143,23 +144,18 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
     networks:
       - rag-network
 
   postgres:
     image: postgres:16-alpine
     container_name: rag-postgres
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=rag_project_db
-      - POSTGRES_USER=${POSTGRES_USER:-vaibhav}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-Password123}
+      - POSTGRES_USER=${DB_USER:-vaibhav}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Password123}
       - POSTGRES_HOST_AUTH_METHOD=password
       - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
@@ -213,9 +209,9 @@ services:
       - "3030:3030"
     environment:
       NEXTAUTH_URL: http://localhost:3001
-      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5433/langfuse
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5432/langfuse
       SALT: ${LANGFUSE_SALT:-changeme}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-changeme}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-c9bd47a38ed4eef3df4b39e1bfee67a01abd9798cadf008c711df253d133f2c1}
       TELEMETRY_ENABLED: "false"
       LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "true"
       CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
@@ -263,9 +259,9 @@ services:
     environment:
       NEXTAUTH_URL: http://localhost:3001
       NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-secret}
-      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5433/langfuse
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5432/langfuse
       SALT: ${LANGFUSE_SALT:-changeme}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-changeme}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-c9bd47a38ed4eef3df4b39e1bfee67a01abd9798cadf008c711df253d133f2c1}
       TELEMETRY_ENABLED: "false"
       LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "true"
       CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
@@ -294,9 +290,9 @@ services:
       REDIS_TLS_ENABLED: "false"
       LANGFUSE_INIT_ORG_NAME: "RAG Organization"
       LANGFUSE_INIT_PROJECT_NAME: "Agentic RAG"
-      LANGFUSE_INIT_USER_EMAIL: ${LANGFUSE_EMAIL:-admin@example.com}
-      LANGFUSE_INIT_USER_NAME: ${LANGFUSE_USER:-Admin}
-      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_PASSWORD:-admin123}
+      LANGFUSE_INIT_USER_EMAIL: alohar212004@gmail.com
+      LANGFUSE_INIT_USER_NAME: Vaibhav
+      LANGFUSE_INIT_USER_PASSWORD: Vaibhav@123
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000/api/public/health || exit 1"]
       interval: 45s

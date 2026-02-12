@@ -1,15 +1,22 @@
 import logging
 import sys
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Tuple
 
-sys.path.insert(0, "/opt/airflow")
+# Add project root to path (Docker + Local both)
+possible_roots = [
+    Path("/opt/airflow"),  # Docker path
+    Path(__file__).parent.parent.parent.parent.absolute(),  # Local path
+    Path(__file__).parent.parent.parent.absolute(),  # Alternative local
+]
 
-from src.db.factory import make_database
-from src.services.arxiv.factory import make_arxiv_client
-from src.services.metadata_fetcher import make_metadata_fetcher
-from src.services.opensearch.factory import make_opensearch_client
-from src.services.pdf_parser.factory import make_pdf_parser_service
+for root in possible_roots:
+    src_path = root / "src"
+    if src_path.exists() and str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+        logging.getLogger(__name__).info(f"Added to path: {root}")
+        break
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +27,13 @@ def get_cached_services() -> Tuple[Any, Any, Any, Any, Any]:
 
     :returns: Tuple of (arxiv_client, pdf_parser, database, metadata_fetcher, opensearch_client)
     """
+    # Lazy imports - only loaded when function is called, not when module is parsed
+    from src.db.factory import make_database
+    from src.services.arxiv.factory import make_arxiv_client
+    from src.services.metadata_fetcher import make_metadata_fetcher
+    from src.services.opensearch.factory import make_opensearch_client
+    from src.services.pdf_parser.factory import make_pdf_parser_service
+    
     logger.info("Initializing services (cached with lru_cache)")
 
     # Initialize core services

@@ -1,8 +1,22 @@
 import json
 import logging
+import sys
 from datetime import datetime
+from pathlib import Path
 
-from .common import get_cached_services
+# Add project root to path (Docker + Local both)
+possible_roots = [
+    Path("/opt/airflow"),  # Docker path
+    Path(__file__).parent.parent.parent.parent.absolute(),  # Local path
+    Path(__file__).parent.parent.parent.absolute(),  # Alternative local
+]
+
+for root in possible_roots:
+    src_path = root / "src"
+    if src_path.exists() and str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+        logging.getLogger(__name__).info(f"Added to path: {root}")
+        break
 
 logger = logging.getLogger(__name__)
 
@@ -39,12 +53,14 @@ def generate_daily_report(**context):
     }
 
     try:
+        # Lazy imports - only loaded when function is called
+        from .common import get_cached_services
+        from src.models.paper import Paper
+        from sqlalchemy import func
+        
         _arxiv_client, _pdf_parser, database, _metadata_fetcher, opensearch_client = get_cached_services()
 
         with database.get_session() as session:
-            from sqlalchemy import func
-            from src.models.paper import Paper
-
             total_papers = session.query(func.count(Paper.id)).scalar()
             report["database_statistics"] = {"total_papers": total_papers}
 

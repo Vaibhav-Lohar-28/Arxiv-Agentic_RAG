@@ -1,41 +1,31 @@
 #!/bin/bash
 set -e
 
-echo "========================================"
-echo "Starting Airflow Initialization"
-echo "========================================"
+# Clean up any existing PID files and processes
+echo "Cleaning up any existing Airflow processes..."
+pkill -f "airflow webserver" || true
+pkill -f "airflow scheduler" || true
+rm -f /opt/airflow/airflow-webserver.pid
+rm -f /opt/airflow/airflow-scheduler.pid
 
-# Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL to be ready..."
-while ! nc -z postgres 5432; do
-  echo "PostgreSQL is unavailable - sleeping"
-  sleep 2
-done
-echo "✓ PostgreSQL is ready!"
+# Wait a moment for processes to fully terminate
+sleep 2
 
 # Initialize Airflow database
 echo "Initializing Airflow database..."
-airflow db migrate
+airflow db init
 
-# Create admin user if it doesn't exist
-echo "Creating/updating admin user..."
+# Create admin user with admin/admin credentials
+echo "Creating admin user..."
 airflow users create \
     --username admin \
     --firstname Admin \
     --lastname User \
     --role Admin \
     --email admin@example.com \
-    --password admin123 \
-    2>/dev/null || echo "Admin user already exists or created"
+    --password admin || echo "Admin user already exists"
 
-echo "========================================"
-echo "Airflow Initialization Complete"
-echo "========================================"
-echo "Starting Airflow Webserver and Scheduler..."
-echo ""
-
-# Start webserver in background
-airflow webserver --port 8080 &
-
-# Start scheduler in foreground (this keeps container running)
-exec airflow scheduler
+# Start webserver and scheduler
+echo "Starting Airflow webserver and scheduler..."
+airflow webserver --port 8080 --daemon &
+airflow scheduler

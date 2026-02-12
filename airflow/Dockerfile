@@ -6,18 +6,15 @@ ENV AIRFLOW_VERSION=2.10.3
 ENV PYTHON_VERSION=3.12
 ENV CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
 
-# Install system dependencies (including netcat for healthcheck)
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
-        libgl1 \
-        libglib2.0-0 \
         curl \
         git \
         libpq-dev \
         poppler-utils \
         tesseract-ocr \
-        netcat-traditional \
         && rm -rf /var/lib/apt/lists/*
 
 # Create airflow user with UID/GID 50000 for cross-platform compatibility
@@ -41,49 +38,9 @@ RUN pip install --no-cache-dir \
 COPY requirements-airflow.txt /tmp/requirements-airflow.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-airflow.txt
 
-# Create and set up entrypoint script inline
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-echo "========================================"\n\
-echo "Starting Airflow Initialization"\n\
-echo "========================================"\n\
-\n\
-# Wait for PostgreSQL to be ready\n\
-echo "Waiting for PostgreSQL to be ready..."\n\
-while ! nc -z postgres 5432; do\n\
-  echo "PostgreSQL is unavailable - sleeping"\n\
-  sleep 2\n\
-done\n\
-echo "✓ PostgreSQL is ready!"\n\
-\n\
-# Initialize Airflow database\n\
-echo "Initializing Airflow database..."\n\
-airflow db migrate\n\
-\n\
-# Create admin user if it does not exist\n\
-echo "Creating/updating admin user..."\n\
-airflow users create \\\n\
-    --username admin \\\n\
-    --firstname Admin \\\n\
-    --lastname User \\\n\
-    --role Admin \\\n\
-    --email admin@example.com \\\n\
-    --password admin123 \\\n\
-    2>/dev/null || echo "Admin user already exists or created"\n\
-\n\
-echo "========================================"\n\
-echo "Airflow Initialization Complete"\n\
-echo "========================================"\n\
-echo "Starting Airflow Webserver and Scheduler..."\n\
-echo ""\n\
-\n\
-# Start webserver in background\n\
-airflow webserver --port 8080 &\n\
-\n\
-# Start scheduler in foreground (this keeps container running)\n\
-exec airflow scheduler\n\
-' > /entrypoint.sh && chmod +x /entrypoint.sh
+# Copy and set up entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Switch to airflow user and set working directory
 USER airflow
@@ -92,4 +49,4 @@ WORKDIR ${AIRFLOW_HOME}
 # Expose port
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]

@@ -1,16 +1,32 @@
 import asyncio
 import logging
+import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
-from src.db.factory import make_database
-from src.services.indexing.factory import make_hybrid_indexing_service
-from src.services.opensearch.factory import make_opensearch_client_fresh
+# Add project root to path (Docker + Local both)
+# Try multiple possible locations
+possible_roots = [
+    Path("/opt/airflow"),  # Docker path
+    Path(__file__).parent.parent.parent.parent.absolute(),  # Local path
+    Path(__file__).parent.parent.parent.absolute(),  # Alternative local
+]
+
+for root in possible_roots:
+    src_path = root / "src"
+    if src_path.exists() and str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+        logging.getLogger(__name__).info(f"Added to path: {root}")
+        break
 
 logger = logging.getLogger(__name__)
 
 
 async def _index_papers_with_chunks(papers):
     """Async helper to index papers with chunking and embeddings."""
+    # Lazy imports - only loaded when function is called
+    from src.services.indexing.factory import make_hybrid_indexing_service
+    
     indexing_service = make_hybrid_indexing_service()
 
     papers_data = []
@@ -45,6 +61,9 @@ def index_papers_hybrid(**context):
     3. Generates embeddings using Jina AI
     4. Indexes chunks with embeddings into OpenSearch
     """
+    # Lazy imports - only loaded when function is called
+    from src.db.factory import make_database
+    
     try:
         database = make_database()
 
@@ -91,6 +110,9 @@ def index_papers_hybrid(**context):
 
 def verify_hybrid_index(**context):
     """Verify hybrid index health and get statistics."""
+    # Lazy imports - only loaded when function is called
+    from src.services.opensearch.factory import make_opensearch_client_fresh
+    
     try:
         opensearch_client = make_opensearch_client_fresh()
 

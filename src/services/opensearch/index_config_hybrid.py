@@ -6,7 +6,6 @@ ARXIV_PAPERS_CHUNKS_MAPPING = {
         "number_of_shards": 1,
         "number_of_replicas": 0,
         "index.knn": True,
-        "index.knn.space_type": "cosinesimil",
         "analysis": {
             "analyzer": {
                 "standard_analyzer": {"type": "standard", "stopwords": "_english_"},
@@ -35,7 +34,7 @@ ARXIV_PAPERS_CHUNKS_MAPPING = {
                 "method": {
                     "name": "hnsw",  # Hierarchical Navigable Small World
                     "space_type": "cosinesimil",  # Cosine similarity
-                    "engine": "nmslib",
+                    "engine": "faiss",  # Using faiss engine (nmslib deprecated in OpenSearch 3.0)
                     "parameters": {
                         "ef_construction": 512,  # Higher value = better recall, slower indexing
                         "m": 16,  # Number of bi-directional links
