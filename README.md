@@ -213,7 +213,7 @@ Supporting Services:
 ## 📁 Project Structure
 
 ```
-Arxuv-Agentic_RAG/
+Airxiv-Agentic_RAG/
 ├── 📂 airflow/                    # Apache Airflow configuration
 │   ├── dags/
 │   │   ├── arxiv_paper_ingestion.py    # Main DAG for daily ingestion

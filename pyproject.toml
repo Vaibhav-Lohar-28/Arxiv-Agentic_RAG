@@ -1,5 +1,5 @@
 [project]
-name = "Arxuv_Agentic_RAG"
+name = "Airxiv_Agentic_RAG"
 version = "0.1.0"
 description = "The ultimate AI research paper rag"
 requires-python = ">=3.12,<3.13"
