@@ -1,4 +1,4 @@
-# 🤖 Arxuv-Agentic_RAG: Intelligent arXiv Research Assistant
+# 🤖 Arxiv-Agentic-RAG: Intelligent arXiv Research Assistant
 
 <p align="center">
   <img src="./ai_project_rag_architecture.gif" alt="Agentic RAG Architecture" width="800"/>
@@ -38,7 +38,7 @@
 
 ## 🎯 What is This?
 
-**Arxuv-Agentic_RAG** is a production-ready, autonomous research assistant that:
+**Arxiv-Agentic-RAG** is a production-ready, autonomous research assistant that:
 
 1. **Automatically fetches** the latest AI/ML research papers from arXiv daily
 2. **Intelligently parses** PDFs to extract structured content
