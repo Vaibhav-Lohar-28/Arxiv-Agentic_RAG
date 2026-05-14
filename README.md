@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
+  <a href="#features">Features</a> • 
   <a href="#architecture">Architecture</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#api-documentation">API</a> •     
