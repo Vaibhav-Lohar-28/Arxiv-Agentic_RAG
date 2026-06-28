@@ -12,6 +12,9 @@ ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache breaker for source code updates
+RUN echo "force_rebuild_src_v1" > /dev/null
+
 # Copy source code
 COPY src /app/src
 

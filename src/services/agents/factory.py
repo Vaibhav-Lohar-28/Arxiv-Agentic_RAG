@@ -16,12 +16,17 @@ def make_agentic_rag_service(
     langfuse_tracer: Optional[LangfuseTracer] = None,
     top_k: int = 3,
     use_hybrid: bool = True,
+    model: Optional[str] = None,
 ) -> AgenticRAGService:
     # Create graph configuration with the provided parameters
-    graph_config = GraphConfig(
-        top_k=top_k,
-        use_hybrid=use_hybrid,
-    )
+    kwargs = {
+        "top_k": top_k,
+        "use_hybrid": use_hybrid,
+    }
+    if model is not None:
+        kwargs["model"] = model
+
+    graph_config = GraphConfig(**kwargs)
 
     return AgenticRAGService(
         opensearch_client=opensearch_client,

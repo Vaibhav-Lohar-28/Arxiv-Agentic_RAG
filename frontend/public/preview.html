@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arxiv Agentic RAG - UI Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .browser-mockup {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .browser-header {
+            background: #334155;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #eab308; }
+        .dot-green { background: #22c55e; }
+        
+        .browser-url {
+            flex: 1;
+            background: #1e293b;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-left: 12px;
+        }
+        
+        /* App Styles */
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #334155;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .logo-text span {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        
+        /* Main Content */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Welcome Screen */
+        .welcome {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .welcome h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome p {
+            color: #94a3b8;
+            font-size: 16px;
+            max-width: 500px;
+            margin: 0 auto 40px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        
+        .feature {
+            background: #334155;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #475569;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .example-chip {
+            background: #334155;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-chip:hover {
+            background: #475569;
+        }
+        
+        /* Chat Messages */
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 16px;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            margin-left: auto;
+            max-width: 80%;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .message.assistant .message-avatar {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .message.user .message-avatar {
+            display: none;
+        }
+        
+        .message-content {
+            background: #334155;
+            padding: 16px 20px;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid #475569;
+            max-width: 100%;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            font-weight: 500;
+        }
+        
+        .message-body {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .message-body pre {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+        }
+        
+        .message-footer {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #475569;
+        }
+        
+        .message-action {
+            font-size: 12px;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .message-action:hover {
+            color: #e2e8f0;
+        }
+        
+        /* Source Cards */
+        .sources {
+            margin-top: 16px;
+        }
+        
+        .source-card {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        
+        .source-title {
+            font-weight: 600;
+            color: #3b82f6;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .source-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .source-score {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        /* Reasoning Steps */
+        .reasoning {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .reasoning-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reasoning-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        /* Input Area */
+        .input-area {
+            border-top: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px 24px;
+        }
+        
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .input-box {
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            transition: all 0.2s;
+        }
+        
+        .input-box:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            min-height: 24px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+        
+        .input-textarea::placeholder {
+            color: #64748b;
+        }
+        
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .input-hint {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            color: #94a3b8;
+        }
+        
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="browser-mockup">
+        <div class="browser-header">
+            <div class="browser-dot dot-red"></div>
+            <div class="browser-dot dot-yellow"></div>
+            <div class="browser-dot dot-green"></div>
+            <div class="browser-url">localhost:5173</div>
+        </div>
+        
+        <div class="app">
+            <!-- Header -->
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-icon">🔬</div>
+                    <div class="logo-text">Arxiv <span>RAG</span></div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn">☀️</button>
+                    <button class="icon-btn">⚙️</button>
+                    <button class="icon-btn">📱</button>
+                </div>
+            </header>
+            
+            <!-- Main Content -->
+            <main class="main">
+                <div class="container">
+                    <!-- Welcome Screen -->
+                    <div class="welcome" id="welcome-screen">
+                        <h1>Arxiv Agentic RAG</h1>
+                        <p>Your intelligent research assistant powered by Agentic RAG. Ask questions about AI/ML papers and get cited answers.</p>
+                        
+                        <div class="features">
+                            <div class="feature">
+                                <div class="feature-icon">🔍</div>
+                                <div class="feature-title">Hybrid Search</div>
+                                <div class="feature-desc">BM25 + Vector</div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">✨</div>
+                                <div class="feature-title">Agentic RAG</div>
+                                <div class="feature-desc">Smart reasoning</div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">📚</div>
+                                <div class="feature-title">Cited Sources</div>
+                                <div class="feature-desc">ArXiv papers</div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">💬</div>
+                                <div class="feature-title">Natural Chat</div>
+                                <div class="feature-desc">Like ChatGPT</div>
+                            </div>
+                        </div>
+                        
+                        <p style="color: #64748b; margin-bottom: 16px;">Try asking:</p>
+                        <div class="examples">
+                            <button class="example-chip">What are transformers?</button>
+                            <button class="example-chip">Explain attention mechanism</button>
+                            <button class="example-chip">Latest multimodal LLMs</button>
+                            <button class="example-chip">RAG implementations</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Messages (Hidden initially) -->
+                    <div class="messages" id="chat-screen" style="display: none;">
+                        <!-- User Message -->
+                        <div class="message user">
+                            <div class="message-avatar">👤</div>
+                            <div class="message-content">
+                                <div class="message-header">You</div>
+                                <div class="message-body">What are transformers in machine learning?</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Assistant Message -->
+                        <div class="message assistant">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    Arxiv Agent
+                                    <span class="badge">95% Quality</span>
+                                </div>
+                                <div class="message-body">
+                                    Transformers are a type of neural network architecture introduced in the paper "Attention Is All You Need" (Vaswani et al., 2017). They revolutionized natural language processing by using <strong>self-attention mechanisms</strong> instead of recurrent or convolutional layers.
+                                    
+                                    <br><br>
+                                    <strong>Key components:</strong>
+                                    <pre>1. Self-Attention: Allows the model to weigh the importance of different words in a sequence
+2. Multi-Head Attention: Runs multiple attention operations in parallel
+3. Feed-Forward Networks: Process attended information
+4. Positional Encoding: Injects position information into embeddings</pre>
+                                </div>
+                                
+                                <!-- Reasoning Steps -->
+                                <div class="reasoning">
+                                    <div class="reasoning-title">🔍 Reasoning Process</div>
+                                    <div class="reasoning-step">
+                                        <div class="step-number">1</div>
+                                        <div>🛡️ Validated query scope (score: 95/100)</div>
+                                    </div>
+                                    <div class="reasoning-step">
+                                        <div class="step-number">2</div>
+                                        <div>🔎 Retrieved documents (1 attempt)</div>
+                                    </div>
+                                    <div class="reasoning-step">
+                                        <div class="step-number">3</div>
+                                        <div>📊 Graded documents (3 relevant)</div>
+                                    </div>
+                                    <div class="reasoning-step">
+                                        <div class="step-number">4</div>
+                                        <div>✨ Generated answer from context</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sources -->
+                                <div class="sources">
+                                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">📚 Sources</div>
+                                    <div class="source-card">
+                                        <div class="source-title">Attention Is All You Need</div>
+                                        <div class="source-meta">
+                                            <span>👤 Vaswani et al.</span>
+                                            <span class="source-score">98% Match</span>
+                                        </div>
+                                    </div>
+                                    <div class="source-card">
+                                        <div class="source-title">BERT: Pre-training of Deep Bidirectional Transformers</div>
+                                        <div class="source-meta">
+                                            <span>👤 Devlin et al.</span>
+                                            <span class="source-score">85% Match</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="message-footer">
+                                    <button class="message-action">⏱️ 2.3s</button>
+                                    <button class="message-action">🔍 Reasoning</button>
+                                    <button class="message-action">📚 5 Sources</button>
+                                    <button class="message-action" style="margin-left: auto;">👍</button>
+                                    <button class="message-action">👎</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading -->
+                        <div class="loading">
+                            <div class="loading-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span>Thinking...</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-box">
+                        <textarea class="input-textarea" rows="1" placeholder="Ask about AI/ML research..."></textarea>
+                        <button class="send-btn">➤</button>
+                    </div>
+                    <div class="input-hint">Press Enter to send, Shift + Enter for new line</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; color: #64748b;">
+        <p>💡 Click any example chip above to see chat interface</p>
+    </div>
+    
+    <script>
+        // Toggle between welcome and chat screen
+        document.querySelectorAll('.example-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'flex';
+            });
+        });
+    </script>
+</body>
+</html>

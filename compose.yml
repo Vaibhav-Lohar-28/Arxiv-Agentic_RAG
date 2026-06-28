@@ -32,6 +32,18 @@ services:
       - rag-network
     restart: unless-stopped
 
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rag-frontend
+    ports:
+      - "5173:80"
+    networks:
+      - rag-network
+    restart: unless-stopped
+
   redis:
     image: redis:7.4-alpine
     container_name: rag-redis

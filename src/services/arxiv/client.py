@@ -396,9 +396,11 @@ class ArxivClient:
         for link in entry.findall("atom:link", self.namespaces):
             if link.get("type") == "application/pdf":
                 url = link.get("href", "")
-                # Convert HTTP to HTTPS for arXiv URLs
+                # Convert to HTTPS and use export.arxiv.org for API downloads
                 if url.startswith("http://arxiv.org/"):
-                    url = url.replace("http://arxiv.org/", "https://arxiv.org/")
+                    url = url.replace("http://arxiv.org/", "https://export.arxiv.org/")
+                elif url.startswith("https://arxiv.org/"):
+                    url = url.replace("https://arxiv.org/", "https://export.arxiv.org/")
                 return url
         return ""
 
