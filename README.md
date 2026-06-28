@@ -1,4 +1,4 @@
-# 🤖 Arxiv-Agentic-RAG: Intelligent arXiv Research Assistant
+# Arxiv-Agentic-RAG: Intelligent arXiv Research Assistant
 
 <p align="center">
   <img src="./ai_project_rag_architecture.gif" alt="Agentic RAG Architecture" width="800"/>
